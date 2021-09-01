@@ -14,7 +14,7 @@ namespace com.satsuma.PUNbelievable
 {
     public class GameManager : MonoBehaviourPunCallbacks
     {
-
+        
 
         #region Photon Callbacks
 
@@ -30,6 +30,33 @@ namespace com.satsuma.PUNbelievable
 
         #endregion
 
+        #region Public Fields
+
+        [Tooltip("The prefab to use for representing the player")]
+        public GameObject playerPrefab;
+
+        public static GameManager Instance;
+
+
+        void Start()
+        {
+            Instance = this;
+            if (playerPrefab == null)
+            {
+                Debug.LogError("<Color=Red><a>Missing</a></Color> playerPrefab Reference. Please set it up in GameObject 'Game Manager'",this);
+            }
+            else
+            {
+                if (PlayerManager.LocalPlayerInstance == null)
+                {
+                    Debug.LogFormat("We are Instantiating LocalPlayer from {0}", SceneManager.GetActiveScene());
+                    // we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
+                    PhotonNetwork.Instantiate(this.playerPrefab.name, new Vector3(0f, 5f, 0f), Quaternion.identity, 0);
+                }
+            }
+        }
+
+        #endregion
 
         #region Public Methods
 

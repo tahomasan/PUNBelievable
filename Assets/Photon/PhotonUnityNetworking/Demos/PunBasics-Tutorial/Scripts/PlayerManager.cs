@@ -8,6 +8,8 @@
 // <author>developer@exitgames.com</author>
 // --------------------------------------------------------------------------------------------------------------------
 
+using Photon.Pun;
+using Photon.Pun.Demo.PunBasics;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -53,17 +55,17 @@ namespace Photon.Pun.Demo.PunBasics
         /// </summary>
         public void Awake()
         {
-            if (this.beams == null)
+            if (beams == null)
             {
                 Debug.LogError("<Color=Red><b>Missing</b></Color> Beams Reference.", this);
             }
             else
             {
-                this.beams.SetActive(false);
+                beams.SetActive(false);
             }
 
             // #Important
-            // used in GameManager.cs: we keep track of the localPlayer instance to prevent instanciation when levels are synchronized
+            // used in GameManager.cs: we keep track of the localPlayer instance to prevent instantiation when levels are synchronized
             if (photonView.IsMine)
             {
                 LocalPlayerInstance = gameObject;
@@ -94,9 +96,9 @@ namespace Photon.Pun.Demo.PunBasics
             }
 
             // Create the UI
-            if (this.playerUiPrefab != null)
+            if (playerUiPrefab != null)
             {
-                GameObject _uiGo = Instantiate(this.playerUiPrefab);
+                GameObject _uiGo = Instantiate(playerUiPrefab);
                 _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
             }
             else
@@ -133,17 +135,17 @@ namespace Photon.Pun.Demo.PunBasics
             // we only process Inputs and check health if we are the local player
             if (photonView.IsMine)
             {
-                this.ProcessInputs();
+                ProcessInputs();
 
-                if (this.Health <= 0f)
+                if (Health <= 0f)
                 {
                     GameManager.Instance.LeaveRoom();
                 }
             }
 
-            if (this.beams != null && this.IsFiring != this.beams.activeInHierarchy)
+            if (beams != null && IsFiring != beams.activeInHierarchy)
             {
-                this.beams.SetActive(this.IsFiring);
+                beams.SetActive(IsFiring);
             }
         }
 
@@ -168,7 +170,7 @@ namespace Photon.Pun.Demo.PunBasics
                 return;
             }
 
-            this.Health -= 0.1f;
+            Health -= 0.1f;
         }
 
         /// <summary>
@@ -192,7 +194,7 @@ namespace Photon.Pun.Demo.PunBasics
             }
 
             // we slowly affect health when beam is constantly hitting us, so player has to move to prevent death.
-            this.Health -= 0.1f*Time.deltaTime;
+            Health -= 0.1f*Time.deltaTime;
         }
 
 
@@ -200,7 +202,7 @@ namespace Photon.Pun.Demo.PunBasics
         /// <summary>See CalledOnLevelWasLoaded. Outdated in Unity 5.4.</summary>
         void OnLevelWasLoaded(int level)
         {
-            this.CalledOnLevelWasLoaded(level);
+            CalledOnLevelWasLoaded(level);
         }
         #endif
 
@@ -219,7 +221,7 @@ namespace Photon.Pun.Demo.PunBasics
                 transform.position = new Vector3(0f, 5f, 0f);
             }
 
-            GameObject _uiGo = Instantiate(this.playerUiPrefab);
+            GameObject _uiGo = Instantiate(playerUiPrefab);
             _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
         }
 
@@ -231,7 +233,7 @@ namespace Photon.Pun.Demo.PunBasics
 		#if UNITY_5_4_OR_NEWER
 		void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode loadingMode)
 		{
-			this.CalledOnLevelWasLoaded(scene.buildIndex);
+			CalledOnLevelWasLoaded(scene.buildIndex);
 		}
 		#endif
 
@@ -249,17 +251,17 @@ namespace Photon.Pun.Demo.PunBasics
                     //	return;
                 }
 
-                if (!this.IsFiring)
+                if (!IsFiring)
                 {
-                    this.IsFiring = true;
+                    IsFiring = true;
                 }
             }
 
             if (Input.GetButtonUp("Fire1"))
             {
-                if (this.IsFiring)
+                if (IsFiring)
                 {
-                    this.IsFiring = false;
+                    IsFiring = false;
                 }
             }
         }
@@ -273,17 +275,19 @@ namespace Photon.Pun.Demo.PunBasics
             if (stream.IsWriting)
             {
                 // We own this player: send the others our data
-                stream.SendNext(this.IsFiring);
-                stream.SendNext(this.Health);
+                stream.SendNext(IsFiring);
+                stream.SendNext(Health);
             }
             else
             {
                 // Network player, receive data
-                this.IsFiring = (bool)stream.ReceiveNext();
-                this.Health = (float)stream.ReceiveNext();
+                IsFiring = (bool)stream.ReceiveNext();
+                Health = (float)stream.ReceiveNext();
             }
         }
 
         #endregion
+        
+        
     }
 }
